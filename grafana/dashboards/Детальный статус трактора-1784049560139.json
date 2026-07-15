@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 2,
+  "id": 4,
   "links": [],
   "panels": [
     {
@@ -223,528 +223,6 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "axisPlacement": "auto",
-            "fillOpacity": 70,
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineWidth": 0,
-            "spanNulls": false
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "dark-red",
-                  "index": 0,
-                  "text": "OFF"
-                },
-                "1": {
-                  "color": "green",
-                  "index": 1,
-                  "text": "ON"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 0,
-        "y": 9
-      },
-      "id": 11,
-      "options": {
-        "alignValue": "left",
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "mergeValues": true,
-        "rowHeight": 0.9,
-        "showValue": "auto",
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.15",
-      "targets": [
-        {
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "mqtt_engine_status{vehicle_id=~\"$vid\", vehicle_type=~\"tractor\"}",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{vehicle_id}}-{{vehicle_type}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Вкл/выкл трактора по времени",
-      "type": "state-timeline"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P4169E866C3094E38"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "#EAB839",
-                "value": 6
-              },
-              {
-                "color": "red",
-                "value": 10
-              }
-            ]
-          },
-          "unit": "h"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 12,
-        "y": 9
-      },
-      "id": 2,
-      "options": {
-        "displayMode": "gradient",
-        "legend": {
-          "calcs": [
-            "last"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 64,
-        "minVizHeight": 20,
-        "minVizWidth": 8,
-        "namePlacement": "top",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.6.15",
-      "targets": [
-        {
-          "adhocFilters": [],
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "mqtt_engine_hours{vehicle_type=\"tractor\", vehicle_id=~\"$vid\"}",
-          "format": "heatmap",
-          "fromExploreMetrics": true,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "tractor-{{vehicle_id}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Время работы (в часах) двигателей",
-      "transparent": true,
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P4169E866C3094E38"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 15
-              },
-              {
-                "color": "#EAB839",
-                "value": 25
-              },
-              {
-                "color": "green",
-                "value": 40
-              }
-            ]
-          },
-          "unit": "litre"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 0,
-        "y": 19
-      },
-      "id": 4,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": false,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.6.15",
-      "targets": [
-        {
-          "adhocFilters": [],
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "mqtt_diesel_fuel_level_pct{vehicle_type=\"tractor\", vehicle_id=~\"$vid\"}",
-          "format": "heatmap",
-          "fromExploreMetrics": true,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "tractor-{{vehicle_id}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Уровень топлива",
-      "transparent": true,
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P4169E866C3094E38"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "#EAB839",
-                "value": 80
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          },
-          "unit": "degree"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 12,
-        "x": 12,
-        "y": 19
-      },
-      "id": 5,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": false,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.6.15",
-      "targets": [
-        {
-          "adhocFilters": [],
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "mqtt_diesel_temp_c{vehicle_type=\"tractor\", vehicle_id=~\"$vid\"}",
-          "format": "heatmap",
-          "fromExploreMetrics": true,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "tractor-{{vehicle_id}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Температура двигателя",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P4169E866C3094E38"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "#EAB839",
-                "value": 3000
-              },
-              {
-                "color": "red",
-                "value": 3500
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 29
-      },
-      "id": 3,
-      "options": {
-        "displayMode": "gradient",
-        "legend": {
-          "calcs": [
-            "last"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 0,
-        "minVizWidth": 103,
-        "namePlacement": "top",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.6.15",
-      "targets": [
-        {
-          "adhocFilters": [],
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "mqtt_diesel_engine_rpm{vehicle_type=\"tractor\", vehicle_id=~\"$vid\"}",
-          "format": "heatmap",
-          "fromExploreMetrics": true,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "tractor-{{vehicle_id}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Обороты двигателей",
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P4169E866C3094E38"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "#EAB839",
-                "value": 1
-              },
-              {
-                "color": "#6ED0E0",
-                "value": 1.5
-              },
-              {
-                "color": "red",
-                "value": 4
-              }
-            ]
-          },
-          "unit": "pressurebar"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 29
-      },
-      "id": 6,
-      "options": {
-        "displayMode": "lcd",
-        "legend": {
-          "calcs": [
-            "last"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 0,
-        "minVizWidth": 103,
-        "namePlacement": "top",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "manual",
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.6.15",
-      "targets": [
-        {
-          "adhocFilters": [],
-          "datasource": {
-            "type": "prometheus",
-            "uid": "P4169E866C3094E38"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "mqtt_oil_pressure_bar{vehicle_type=\"tractor\", vehicle_id=~\"$vid\"}",
-          "format": "heatmap",
-          "fromExploreMetrics": true,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "tractor-{{vehicle_id}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Давление масла в двигателе",
-      "transparent": true,
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P4169E866C3094E38"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
             "mode": "palette-classic-by-name"
           },
           "custom": {
@@ -772,10 +250,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 13,
+        "h": 16,
         "w": 24,
         "x": 0,
-        "y": 38
+        "y": 9
       },
       "id": 9,
       "options": {
@@ -799,7 +277,7 @@
               "showLegend": false,
               "style": {
                 "color": {
-                  "fixed": "#275221"
+                  "fixed": "dark-red"
                 },
                 "opacity": 1,
                 "rotation": {
@@ -990,6 +468,528 @@
       ],
       "transparent": true,
       "type": "geomap"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisPlacement": "auto",
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "OFF"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "ON"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 25
+      },
+      "id": 11,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "auto",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "mqtt_engine_status{vehicle_id=~\"$vid\", vehicle_type=~\"tractor\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{vehicle_id}}-{{vehicle_type}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Вкл/выкл трактора по времени",
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 6
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "h"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 25
+      },
+      "id": 2,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 64,
+        "minVizHeight": 20,
+        "minVizWidth": 8,
+        "namePlacement": "top",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "manual",
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "adhocFilters": [],
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "mqtt_engine_hours{vehicle_type=\"tractor\", vehicle_id=~\"$vid\"}",
+          "format": "heatmap",
+          "fromExploreMetrics": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "tractor-{{vehicle_id}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Время работы (в часах) двигателей",
+      "transparent": true,
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 15
+              },
+              {
+                "color": "#EAB839",
+                "value": 25
+              },
+              {
+                "color": "green",
+                "value": 40
+              }
+            ]
+          },
+          "unit": "litre"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 35
+      },
+      "id": 4,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "adhocFilters": [],
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "mqtt_diesel_fuel_level_pct{vehicle_type=\"tractor\", vehicle_id=~\"$vid\"}",
+          "format": "heatmap",
+          "fromExploreMetrics": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "tractor-{{vehicle_id}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Уровень топлива",
+      "transparent": true,
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "degree"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 35
+      },
+      "id": 5,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "adhocFilters": [],
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "mqtt_diesel_temp_c{vehicle_type=\"tractor\", vehicle_id=~\"$vid\"}",
+          "format": "heatmap",
+          "fromExploreMetrics": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "tractor-{{vehicle_id}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Температура двигателя",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 3000
+              },
+              {
+                "color": "red",
+                "value": 3500
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 45
+      },
+      "id": 3,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 0,
+        "minVizWidth": 103,
+        "namePlacement": "top",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "manual",
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "adhocFilters": [],
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "mqtt_diesel_engine_rpm{vehicle_type=\"tractor\", vehicle_id=~\"$vid\"}",
+          "format": "heatmap",
+          "fromExploreMetrics": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "tractor-{{vehicle_id}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Обороты двигателей",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "#EAB839",
+                "value": 1
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 1.5
+              },
+              {
+                "color": "red",
+                "value": 4
+              }
+            ]
+          },
+          "unit": "pressurebar"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 45
+      },
+      "id": 6,
+      "options": {
+        "displayMode": "lcd",
+        "legend": {
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 0,
+        "minVizWidth": 103,
+        "namePlacement": "top",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "manual",
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "adhocFilters": [],
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "mqtt_oil_pressure_bar{vehicle_type=\"tractor\", vehicle_id=~\"$vid\"}",
+          "format": "heatmap",
+          "fromExploreMetrics": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "tractor-{{vehicle_id}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Давление масла в двигателе",
+      "transparent": true,
+      "type": "bargauge"
     }
   ],
   "preload": false,
@@ -1031,5 +1031,5 @@
   "timezone": "browser",
   "title": "Детальный статус трактора",
   "uid": "tractors_state",
-  "version": 32
+  "version": 1
 }

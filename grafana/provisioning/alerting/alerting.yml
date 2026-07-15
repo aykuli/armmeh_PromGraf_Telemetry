@@ -1,15 +1,14 @@
 apiVersion: 1
 
 contactPoints:
-  - name: "Telegram Bot Alert"
+  - name: Telegram Bot Alert
     receivers:
-      - uid: "telegram_bot_webhook"
-        type: "webhook"
+      - uid: telegram_bot
+        type: telegram
         settings:
-          # Использую шлюз для отправки данных из контейнера на порт Go-бота
-          url: "http://host.docker.internal:8080"
-          httpMethod: "POST"
-
+          bottoken: 8895251336:AAF2wKvJBSGbreclUAkrnb5jrNm0QLawWvE
+          chatid: "-1003965153231"
+          message: '{{ template "telegram.default.message" . }}'
   - name: "Email Alert"
     receivers:
       - uid: "email_receiver"
@@ -33,12 +32,12 @@ policies:
 # https://grafana.com/docs/grafana/latest/alerting/set-up/provision-alerting-resources/file-provisioning/
 groups:
   - orgId: 1
-    name: "Robot alerts"
-    folder: "Robot alerts"
+    name: "Robot Alerts"
+    folder: "Alerts"
     interval: 10s
     rules:
       # 🔴 Перегрев бортового управляющего процессора CPU (>85°C)
-      - uid: mqtt_temp_cpu_c
+      - uid: mqtt_robot_temp_cpu_c
         title: "🔴 Перегрев ЦПУ робота"
         condition: A
         data:
@@ -49,7 +48,7 @@ groups:
             datasourceUid: P4169E866C3094E38
             model:
               editorMode: code
-              expr: mqtt_temp_cpu_c{vehicle_type="robot"}
+              expr: mqtt_robot_temp_cpu_c{vehicle_type="robot"}
               instant: true
               intervalMs: 1000
               legendFormat: __auto
@@ -94,11 +93,10 @@ groups:
           vehicle_type: robot
         isPaused: false
         notification_settings:
-          receiver: telegram
+          receiver:  Telegram Bot Alert
 
-          
       # 🟠 Падение уровня сигнала связи LTE (RSSI ниже -85 dBm)
-      - uid: mqtt_lte_rssi
+      - uid: mqtt_robot_lte_rssi
         title: "🟠 Падение уровня сигнала связи LTE (RSSI ниже -85 dBm)"
         condition: A
         data:
@@ -109,7 +107,7 @@ groups:
             datasourceUid: P4169E866C3094E38
             model:
               editorMode: code
-              expr: mqtt_lte_rssi{vehicle_type="robot"}{vehicle_type="robot"}
+              expr: mqtt_robot_lte_rssi{vehicle_type="robot"}
               instant: true
               intervalMs: 1000
               legendFormat: __auto
@@ -154,10 +152,10 @@ groups:
           vehicle_type: robot
         isPaused: false
         notification_settings:
-          receiver: telegram
+          receiver:  Telegram Bot Alert
 
       # 🔴 Активация аппаратной или программной кнопки E-STOP (Аварийный стоп)
-      - uid: mqtt_estop_status
+      - uid: mqtt_robot_estop_status
         title: "🔴 Активация аппаратной или программной кнопки E-STOP (Аварийный стоп)"
         condition: A
         data:
@@ -168,7 +166,66 @@ groups:
             datasourceUid: P4169E866C3094E38
             model:
               editorMode: code
-              expr: mqtt_estop_status{vehicle_type="robot"}
+              expr: mqtt_robot_estop_status{vehicle_type="robot"}
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                  - evaluator:
+                      params:
+                          - 1
+                      type: eq
+                    operator:
+                      type: and
+                    query:
+                      params:
+                          - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: park_state
+        panelId: 15
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
+        annotations:
+          __dashboardUid__: park_state
+          __panelId__: "15"
+        labels:
+          severity: critical
+          vehicle_type: robot
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
+
+      # 🟠 Потеря навигационного GPS/RTK-сигнала (статус отличный от fix)
+      - uid: mqtt_robot_rtk_status
+        title: "🟠 Потеря навигационного GPS/RTK-сигнала (статус отличный от fix)"
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              editorMode: code
+              expr: mqtt_robot_rtk_status{vehicle_type="robot"}
               instant: true
               intervalMs: 1000
               legendFormat: __auto
@@ -209,139 +266,609 @@ groups:
           __dashboardUid__: park_state
           __panelId__: "18"
         labels:
+          severity: warning
+          vehicle_type: robot
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
+
+      # 🔴 Потеря навигационного GPS/RTK-сигнала
+      - uid: mqtt_robot_rtk_status_off
+        title: "🔴 Потеря навигационного GPS/RTK-сигнала"
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              editorMode: code
+              expr: mqtt_robot_rtk_status{vehicle_type="robot"}
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                  - evaluator:
+                      params:
+                          - 0
+                      type: eq
+                    operator:
+                      type: and
+                    query:
+                      params:
+                          - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: park_state
+        panelId: 18
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
+        annotations:
+          __dashboardUid__: park_state
+          __panelId__: "18"
+        labels:
           severity: critical
           vehicle_type: robot
         isPaused: false
         notification_settings:
-          receiver: telegram
-# -------------------
-
-  - orgId: 2
-    name: "Fleet Safety Alerts"
-    folder: "Vehicle Telemetry Alerts"
-    interval: "10s"
+          receiver:  Telegram Bot Alert
+  - orgId: 1
+    name: "Electric vehicle alerts"
+    folder: "Alerts"
+    interval: 10s
     rules:
-      
-      # 1. ALERT RULE: Vehicle Rollover or Severe Tilt (via Altitude Velocity)
-      - uid: "alert_vehicle_rollover"
-        title: "Vehicle Rollover Detected"
-        condition: "B" # Points to the Threshold condition block below
+      # 🔴 Разряд батареи (<10%)
+      - uid: mqtt_battery_soc_pct
+        title: "🔴 Разряд батареи (<10%)"
+        condition: A
         data:
-          - refId: "A"
+          - refId: A
             relativeTimeRange:
-              from: 30
+              from: 600
               to: 0
-            datasourceUid: "VictoriaMetrics" # Ensure this matches your datasource name string
+            datasourceUid: P4169E866C3094E38
             model:
-              expr: "abs(deriv(mqtt_alt{job=\"vehicles\"}[5s]))"
+              editorMode: code
+              expr: mqtt_battery_soc_pct{fuel_type="electric"}
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                  - evaluator:
+                      params:
+                          - 10
+                      type: lt
+                    operator:
+                      type: and
+                    query:
+                      params:
+                          - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
               intervalMs: 1000
               maxDataPoints: 43200
-              refId: "A"
-              type: "timeSeriesQuery"
-          - refId: "B"
-            datasourceUid: "-100" # Internal UI code for Classic Expressions engine
-            model:
-              conditions:
-                - evaluator:
-                    params: [1.5]
-                    type: "gt" # Is Greater Than 1.5 m/s
-                  operator:
-                    type: "and"
-                  query:
-                    params: ["A"]
-                  reducer:
-                    params: []
-                    type: "last"
-                  type: "query"
-              expression: "A"
-              type: "classic_conditions"
-        noDataState: "NoData"
-        execErrState: "Alerting"
-        for: "0s" # Fire instantly for extreme structural safety hazards
+              refId: C
+              type: threshold
+        dashboardUid: park_state
+        panelId: 3
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
         annotations:
-          summary: "КРИТИЧЕСКИЙ ПЕРЕВОРТ / НАКЛОН ТС ID {{ $labels.vehicle_id }}"
-          description: "Зафиксировано аномально резкое изменение высоты машины ({{ $value }} м/с). Транспорт завалился на бок или съехал в кювет!"
+          __dashboardUid__: park_state
+          __panelId__: "3"
         labels:
-          severity: "critical"
+          severity: critical
+          vehicle_type: robot
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
 
-      # 2. ALERT RULE: Engine / Battery Cell Overheating
-      - uid: "alert_vehicle_overheat"
-        title: "Vehicle Temperature Overheat"
-        condition: "B"
+      # 🟠 Перегрев аккумулятора (>60°C)
+      - uid: mqtt_battery_temp_c
+        title: "🟠 Перегрев аккумулятора (>60°C)"
+        condition: A
         data:
-          - refId: "A"
+          - refId: A
             relativeTimeRange:
-              from: 60
+              from: 600
               to: 0
-            datasourceUid: "VictoriaMetrics"
+            datasourceUid: P4169E866C3094E38
             model:
-              expr: "mqtt_temp_c > 100 or mqtt_battery_temp_c > 60"
-              intervalMs: 2000
-              refId: "A"
-              type: "timeSeriesQuery"
-          - refId: "B"
-            datasourceUid: "-100"
-            model:
-              conditions:
-                - evaluator:
-                    params: [0]
-                    type: "gt" # Fires if the expression output is active (above 0)
-                  operator:
-                    type: "and"
-                  query:
-                    params: ["A"]
-                  reducer:
-                    params: []
-                    type: "last"
-                  type: "query"
-              expression: "A"
-              type: "classic_conditions"
-        noDataState: "OK"
-        execErrState: "Alerting"
-        for: "15s" # Must be hot for 15 seconds to avoid transient spike false-positives
-        annotations:
-          summary: "ПЕРЕГРЕВ СИСТЕМЫ ТС ID {{ $labels.vehicle_id }}"
-          description: "Температура узлов превысила безопасный рабочий диапазон. Текущее значение: {{ $value }}°C."
-        labels:
-          severity: "warning"
-
-      # 3. ALERT RULE: Low Oil Pressure under Active Load (Diesel Only)
-      - uid: "alert_low_oil_pressure"
-        title: "Diesel Engine Low Oil Pressure"
-        condition: "B"
-        data:
-          - refId: "A"
-            relativeTimeRange:
-              from: 30
-              to: 0
-            datasourceUid: "VictoriaMetrics"
-            model:
-              expr: "mqtt_oil_pressure_bar < 1.0 and mqtt_engine_rpm > 400"
+              editorMode: code
+              expr: mqtt_battery_temp_c{fuel_type="electric"}
+              instant: true
               intervalMs: 1000
-              refId: "A"
-              type: "timeSeriesQuery"
-          - refId: "B"
-            datasourceUid: "-100"
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
             model:
               conditions:
-                - evaluator:
-                    params: [0]
-                    type: "gt"
-                  operator:
-                    type: "and"
-                  query:
-                    params: ["A"]
-                  reducer:
-                    params: []
-                    type: "last"
-                  type: "query"
-              expression: "A"
-              type: "classic_conditions"
-        noDataState: "OK"
-        execErrState: "Alerting"
-        for: "5s"
+                  - evaluator:
+                      params:
+                        - 60
+                      type: gt
+                    operator:
+                      type: and
+                    query:
+                      params:
+                        - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: park_state
+        panelId: 8
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
         annotations:
-          summary: "АВАРИЙНОЕ ДАВЛЕНИЕ МАСЛА ДВС ТРАКТОРА ID {{ $labels.vehicle_id }}"
-          description: "Давление смазочного контура упало ниже критической нормы 1.0 bar при активном сгорании топлива!"
+          __dashboardUid__: park_state
+          __panelId__: "8"
         labels:
-          severity: "critical"
+          severity: warning
+          fuel_type: electric
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
+
+      # 🟠 Аномальный ток потребления при сильной нагрузке
+      - uid: mqtt_current_a
+        title: 🟠 Аномальный ток потребления при сильной нагрузке
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              editorMode: code
+              expr: mqtt_current_a{fuel_type="electric"}
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                  - evaluator:
+                      params:
+                          - 150
+                      type: gt
+                    operator:
+                      type: and
+                    query:
+                      params:
+                          - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: park_state
+        panelId: 9
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
+        annotations:
+          __dashboardUid__: park_state
+          __panelId__: "9"
+        labels:
+          severity: warning
+          vehicle_type: robot
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
+
+
+      # 🟠 Превышение скорости (ограничение 15 км/ч для всех типов ТС)
+      - uid: mqtt_speed_electric_vehicle
+        title: 🟠 Превышение скорости (ограничение 15 км/ч для всех типов ТС)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              editorMode: code
+              expr: mqtt_speed{fuel_type="electric"}
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                  - evaluator:
+                      params:
+                          - 15
+                      type: gt
+                    operator:
+                      type: and
+                    query:
+                      params:
+                          - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: park_state
+        panelId: 19
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
+        annotations:
+          __dashboardUid__: park_state
+          __panelId__: "19"
+        labels:
+          severity: warning
+          vehicle_type: robot
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
+
+  - orgId: 1
+    name: "Diesel vehicle alerts"
+    folder: "Alerts"
+    interval: 10s
+    rules:
+      # 🔴 Критически низкое давление масла при заведенном двигателе
+      - uid: mqtt_oil_pressure_bar
+        title: 🔴 Критически низкое давление масла при заведенном двигателе
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              editorMode: code
+              expr: mqtt_oil_pressure_bar{fuel_type="diesel"}
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                  - evaluator:
+                      params:
+                          - 1
+                      type: lt
+                    operator:
+                      type: and
+                    query:
+                      params:
+                          - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: tractors_state
+        panelId: 6
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
+        annotations:
+          __dashboardUid__: tractors_state
+          __panelId__: "6"
+        labels:
+          severity: critical
+          vehicle_type: robot
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
+
+      # 🔴 Превышение скорости (ограничение 60 км/ч)
+      - uid: mqtt_speed_diesel_vehicle
+        title: 🔴 Превышение скорости (ограничение 60 км/ч)
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              editorMode: code
+              expr: mqtt_speed{fuel_type="diesel"}
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                  - evaluator:
+                      params:
+                          - 60
+                      type: gt
+                    operator:
+                      type: and
+                    query:
+                      params:
+                          - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: tractors_state
+        panelId: 7
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
+        annotations:
+          __dashboardUid__: tractors_state
+          __panelId__: "7"
+        labels:
+          severity: critical
+          vehicle_type: robot
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
+
+      # 🟠 Перегрев антифриза (>100°C)
+      - uid: mqtt_temp_c_diesel_vehicle
+        title: 🟠 Перегрев антифриза (>100°C)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              editorMode: code
+              expr: mqtt_temp_c{fuel_type="diesel"}
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                  - evaluator:
+                      params:
+                          - 100
+                      type: gt
+                    operator:
+                      type: and
+                    query:
+                      params:
+                          - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: tractors_state
+        panelId: 5
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
+        annotations:
+          __dashboardUid__: tractors_state
+          __panelId__: "5"
+        labels:
+          severity: warning
+          vehicle_type: robot
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
+
+      # 🟠 Hизкий уровень топлива в баке (<15%)
+      - uid: mqtt_fuel_level_pct
+        title: 🟠 Hизкий уровень топлива в баке (<15%)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              editorMode: code
+              expr: mqtt_fuel_level_pct{fuel_type="diesel"}
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                  - evaluator:
+                      params:
+                          - 15
+                      type: lt
+                    operator:
+                      type: and
+                    query:
+                      params:
+                          - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: tractors_state
+        panelId: 4
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
+        annotations:
+          __dashboardUid__: tractors_state
+          __panelId__: "4"
+        labels:
+          severity: warning
+          vehicle_type: robot
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
+
+      # 🔵 Длительный простой заведенного ДВС на холостых (High Idle Time)
+      - uid: mqtt_fuel_level_pct
+        title: 🔵 Длительный простой заведенного ДВС на холостых (High Idle Time)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              editorMode: code
+              expr: mqtt_engine_rpm{fuel_type="diesel"}
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              conditions:
+                  - evaluator:
+                      params:
+                          - 0
+                      type: gt
+                    operator:
+                      type: and
+                    query:
+                      params:
+                          - C
+                    reducer:
+                      params: []
+                      type: last
+                    type: query
+              datasource:
+                  type: __expr__
+                  uid: __expr__
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
+              type: threshold
+        dashboardUid: tractors_state
+        panelId: 4
+        noDataState: NoData
+        execErrState: Error
+        for: 10s
+        annotations:
+          __dashboardUid__: tractors_state
+          __panelId__: "4"
+        labels:
+          severity: info
+          vehicle_type: robot
+        isPaused: false
+        notification_settings:
+          receiver:  Telegram Bot Alert
+

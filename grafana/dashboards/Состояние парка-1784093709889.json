@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 5,
   "links": [],
   "panels": [
     {
@@ -190,7 +190,6 @@
         }
       ],
       "title": "Вкл/выкл ТС",
-      "transparent": true,
       "type": "gauge"
     },
     {
@@ -238,8 +237,8 @@
         ]
       },
       "gridPos": {
-        "h": 14,
-        "w": 16,
+        "h": 19,
+        "w": 24,
         "x": 0,
         "y": 9
       },
@@ -390,12 +389,215 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 28
       },
       "id": 5,
       "panels": [],
       "title": "Электрическая техника",
       "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "velocitykmh"
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "40-cart"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 29
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "mqtt_speed{vehicle_id=~\"$vid\", vehicle_type=~\"$vehicle_type\", fuel_type=\"electric\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "{{vehicle_id}}-{{vehicle_type}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Скорость электрической ТС",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 40
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 12,
+        "x": 12,
+        "y": 29
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "VictoriaMetrics"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "mqtt_electric_battery_temp_c{fuel_type=\"electric\", vehicle_id=~\"$vid\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "{{vehicle_id}} {{vehicle_type}}",
+          "range": false,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Температура батареи",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -454,10 +656,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
-        "w": 11,
+        "h": 11,
+        "w": 12,
         "x": 0,
-        "y": 24
+        "y": 42
       },
       "id": 3,
       "options": {
@@ -505,84 +707,6 @@
       ],
       "title": "Уровень батареи",
       "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P4169E866C3094E38"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "yellow",
-                "value": 30
-              },
-              {
-                "color": "red",
-                "value": 40
-              }
-            ]
-          },
-          "unit": "celsius"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 15,
-        "w": 13,
-        "x": 11,
-        "y": 24
-      },
-      "id": 8,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.15",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "VictoriaMetrics"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "mqtt_electric_battery_temp_c{fuel_type=\"electric\", vehicle_id=~\"$vid\"}",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": true,
-          "legendFormat": "{{vehicle_id}} {{vehicle_type}}",
-          "range": false,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Температура батареи",
-      "type": "stat"
     },
     {
       "datasource": {
@@ -663,17 +787,17 @@
       },
       "gridPos": {
         "h": 15,
-        "w": 11,
+        "w": 12,
         "x": 0,
-        "y": 39
+        "y": 53
       },
       "id": 9,
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false
+          "showLegend": true
         },
         "tooltip": {
           "hideZeros": false,
@@ -702,6 +826,7 @@
         }
       ],
       "title": "Уровень тока",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -778,17 +903,17 @@
       },
       "gridPos": {
         "h": 15,
-        "w": 11,
-        "x": 11,
-        "y": 39
+        "w": 12,
+        "x": 12,
+        "y": 53
       },
       "id": 10,
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false
+          "showLegend": true
         },
         "tooltip": {
           "hideZeros": false,
@@ -825,119 +950,12 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 68
       },
       "id": 11,
       "panels": [],
       "title": "Роботы",
       "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P4169E866C3094E38"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "always",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "yellow",
-                "value": 50
-              },
-              {
-                "color": "red",
-                "value": 60
-              }
-            ]
-          },
-          "unit": "celsius"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 55
-      },
-      "id": 12,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.15",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "VictoriaMetrics"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "mqtt_robot_temp_cpu_c{vehicle_id=~\"$vid\", vehicle_type=\"robot\"}",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": true,
-          "legendFormat": "{{vehicle_id}} {{vehicle_type}}",
-          "range": false,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Температура ЦПУ робота",
-      "type": "timeseries"
     },
     {
       "datasource": {
@@ -986,10 +1004,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 13,
         "w": 12,
-        "x": 12,
-        "y": 55
+        "x": 0,
+        "y": 69
       },
       "id": 14,
       "options": {
@@ -1023,6 +1041,101 @@
         }
       ],
       "title": "Вкл/выкл робота",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 1,
+                  "text": "NONE"
+                },
+                "1": {
+                  "color": "blue",
+                  "index": 0,
+                  "text": "FLOAT"
+                },
+                "2": {
+                  "color": "green",
+                  "index": 2,
+                  "text": "FIX"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "dark-red",
+                "value": 0
+              },
+              {
+                "color": "blue",
+                "value": 1
+              },
+              {
+                "color": "green",
+                "value": 2
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 69
+      },
+      "id": 18,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "mqtt_robot_rtk_status{vehicle_id=~\"$vid\", vehicle_type=\"robot\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{vehicle_id}}-{{vehicle_type}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "RTK статус навигации",
       "transparent": true,
       "type": "gauge"
     },
@@ -1094,7 +1207,116 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 63
+        "y": 82
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "VictoriaMetrics"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": true,
+          "expr": "mqtt_robot_temp_cpu_c{vehicle_id=~\"$vid\", vehicle_type=\"robot\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "{{vehicle_id}} {{vehicle_type}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Температура ЦПУ робота",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 82
       },
       "id": 17,
       "options": {
@@ -1119,112 +1341,20 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
+          "exemplar": true,
           "expr": "mqtt_robot_lte_rssi{vehicle_id=~\"$vid\", vehicle_type=\"robot\"}",
           "format": "time_series",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "instant": true,
+          "instant": false,
           "legendFormat": "{{vehicle_id}} {{vehicle_type}}",
-          "range": false,
-          "refId": "A",
-          "useBackend": false
-        }
-      ],
-      "title": "Oбщий показатель мощности радиосигнала",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P4169E866C3094E38"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "#a0b9de",
-                  "index": 1,
-                  "text": "none"
-                },
-                "1": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "fix"
-                },
-                "2": {
-                  "color": "orange",
-                  "index": 2,
-                  "text": "float"
-                }
-              },
-              "type": "value"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "blue",
-                "value": 0
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 63
-      },
-      "id": 15,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": false,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.6.15",
-      "targets": [
-        {
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "mqtt_engine_status{vehicle_id=~\"$vid\", vehicle_type=\"robot\"}",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "legendFormat": "{{vehicle_id}}-{{vehicle_type}}",
           "range": true,
           "refId": "A",
           "useBackend": false
         }
       ],
-      "title": "RTK статус робота",
-      "transparent": true,
-      "type": "gauge"
+      "title": "Oбщий показатель мощности радиосигнала",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -1286,7 +1416,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 71
+        "y": 90
       },
       "id": 13,
       "options": {
@@ -1322,6 +1452,93 @@
       ],
       "title": "Статус миссии",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P4169E866C3094E38"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "#a0b9de",
+                  "index": 1,
+                  "text": "OFF"
+                },
+                "1": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "ON"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 90
+      },
+      "id": 15,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.6.15",
+      "targets": [
+        {
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "mqtt_robot_estop_status{vehicle_id=~\"$vid\", vehicle_type=\"robot\"}",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "{{vehicle_id}}-{{vehicle_type}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Состояние кнопки Emergensy STOP",
+      "transparent": true,
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -1375,7 +1592,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 79
+        "y": 98
       },
       "id": 16,
       "options": {
@@ -1496,5 +1713,5 @@
   "timezone": "browser",
   "title": "Состояние парка",
   "uid": "park_state",
-  "version": 57
+  "version": 1
 }

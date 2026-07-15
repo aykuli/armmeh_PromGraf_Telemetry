@@ -5,3 +5,4 @@ mosquitto/data
 grafana/data
 
 telgen
+prometheus/*_rules.yml
