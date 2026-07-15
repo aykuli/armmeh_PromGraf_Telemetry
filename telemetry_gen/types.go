@@ -50,7 +50,7 @@ type ElectricMetrics struct {
 	BatterySocPct int     `json:"battery_soc_pct"`
 	BatteryTempC  float32 `json:"battery_temp_c"`
 	CurrentA      float32 `json:"current_a"`
-	VoltageV      float32 `json:"voltage_c"`
+	VoltageV      float32 `json:"voltage_v"`
 }
 
 type RobotTelemetryPayload struct {
@@ -60,12 +60,12 @@ type RobotTelemetryPayload struct {
 
 type RobotMetrics struct {
 	ElectricMetrics
-	Mode						string 	`json:"mode"` // idle, human, teleop, supervis, autonom
-	MissionStatus 	string 	`json:"mission_status"` // none, pause, run, complete, autonom
-	MissionID				string 	`json:"mission_id"`
-	EstopStatus			string 	`json:"estop_status"` // on/off
-	RTKStatus				string 	`json:"rtl_status"` // fix, float, none
-	SteeringAngleDeg float64 	`json:"steering_angle_deg"`
-	TempCpuC				float32 	`json:"temp_cpu_c"`
-	LteRssi					float32 	`json:"lte_rssi"`
+	Mode             string  `json:"mode"`           // idle, human, teleop, supervis, autonom
+	MissionStatus    string  `json:"mission_status"` // none, pause, run, complete, autonom
+	MissionID        string  `json:"mission_id"`
+	EstopStatus      string  `json:"estop_status"` // on/off
+	RTKStatus        string  `json:"rtl_status"`   // fix, float, none
+	SteeringAngleDeg float64 `json:"steering_angle_deg"`
+	TempCpuC         float32 `json:"temp_cpu_c"`
+	LteRssi          float32 `json:"lte_rssi"`
 }

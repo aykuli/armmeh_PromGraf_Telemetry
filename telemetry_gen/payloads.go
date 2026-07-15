@@ -6,8 +6,9 @@ import (
 )
 
 var RobotModes = []string{"idle", "human", "teleop", "supervis", "autonom"}
-var RobotMissionStatuses = []string{"none", "pause", "run", "complete", "autonom"}
+var RobotMissionStatuses = []string{"none", "pause", "run", "complete", "abort"}
 var RobotRTKStatuses = []string{"fix", "float", "none"}
+var baseRoomTmp = float32(22.2)
 
 func createPayload(vehicleInfo VehicleInfo, coord Coordinate) any {
 	commonPayload := TelemetryPayload{
@@ -21,14 +22,20 @@ func createPayload(vehicleInfo VehicleInfo, coord Coordinate) any {
 		GpsLat:       coord.Lat,
 		GpsLon:       coord.Lon,
 		GpsAlt:       rand.Float64() * 5,
-		SpeedKmh:     rand.Float32() * 15.0, // Speed between 0 and 15 km/h
+		SpeedKmh:     rand.Float32() * 60.0, // Speed between 0 and 15 km/h
 		EngineStatus: vehicleInfo.engineStatus,
 	}
 
 	if vehicleInfo.fuelType == "diesel" {
 		engineRPM := 0
+		engineHours := float32(0)
+		tempC := baseRoomTmp
 		if vehicleInfo.engineStatus == "on" {
-			engineRPM = rand.Int() * 4000
+			engineRPM = rand.Int() % 4000
+			engineHours = 2 + (rand.Float32() * 12)
+			tempC = baseRoomTmp + (rand.Float32() * 40.0)
+		} else {
+			metricCommon.SpeedKmh = 0
 		}
 
 		return DieselTelemetryPayload{
@@ -36,10 +43,10 @@ func createPayload(vehicleInfo VehicleInfo, coord Coordinate) any {
 			Metrics: DieselMetrics{
 				MetricCommon:   metricCommon,
 				EngineRPM:      engineRPM,
-				FuelLevelPct:   rand.Int() * 100,
-				TempC:          82.5 + (rand.Float32() * 10.0),
-				OilPressureBar: 2.1 + (rand.Float32() * 10.0),
-				EngineHours:    1234.5 + (rand.Float32() - 0.5),
+				FuelLevelPct:   rand.Int() % 100,
+				TempC:          float32(tempC),
+				OilPressureBar: (rand.Float32() * 5.0),
+				EngineHours:    engineHours,
 			},
 		}
 	}
@@ -52,7 +59,7 @@ func createPayload(vehicleInfo VehicleInfo, coord Coordinate) any {
 
 	electricMetrics := ElectricMetrics{
 		MetricCommon:  metricCommon,
-		BatterySocPct: rand.Int() * 100,
+		BatterySocPct: rand.Int() % 100,
 		BatteryTempC:  rand.Float32() * 40,
 		CurrentA:      currentA,
 		VoltageV:      voltageV,
@@ -65,7 +72,7 @@ func createPayload(vehicleInfo VehicleInfo, coord Coordinate) any {
 				ElectricMetrics:  electricMetrics,
 				Mode:             RobotModes[vehicleInfo.id%len(RobotModes)],
 				MissionStatus:    RobotMissionStatuses[vehicleInfo.id%len(RobotMissionStatuses)],
-				MissionID:        string(rand.Int() % 4000),
+				MissionID:        string(rune(rand.Int() % 4000)),
 				EstopStatus:      vehicleInfo.engineStatus,
 				RTKStatus:        RobotRTKStatuses[vehicleInfo.id%len(RobotRTKStatuses)],
 				SteeringAngleDeg: rand.Float64() * 10,

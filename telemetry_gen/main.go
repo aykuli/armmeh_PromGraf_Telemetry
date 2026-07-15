@@ -29,7 +29,7 @@ type VehicleInfo struct {
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Не найден файл .env")
 	}
 
 	mqttConfigs := config{
@@ -38,7 +38,7 @@ func main() {
 		password: os.Getenv("MQTT_PASS"),
 	}
 
-	fmt.Printf("MQTT onfigs %+v", mqttConfigs)
+	fmt.Printf("MQTT конфиг %+v", mqttConfigs)
 
 	// Базовые координаты центрального гаража
 	baseLat := 55.7485
@@ -46,7 +46,7 @@ func main() {
 	vehicleCount := 100
 
 	var wg sync.WaitGroup
-	log.Printf("Start simulation for %d vehicles", vehicleCount)
+	log.Printf("Старт симуляции %d количества ТС", vehicleCount)
 
 	engineOffIndices := map[int]bool{
 		8: true, 9: true, 11: true, 12: true,
@@ -121,11 +121,11 @@ func runVehicle(vehicleInfo VehicleInfo, mqttConfigs config) {
 
 	client := mqtt.NewClient(options)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		log.Fatalf("Error connecting to MQTT broker: %v", token.Error())
+		log.Fatalf("Ошибка соединения к MQTT брокеру: %v", token.Error())
 	}
 	defer client.Disconnect(500) // milliseconds to wait for existing work to be completed
 
-	log.Printf("%d - %s - %s connected to MQTT Broker", vehicleInfo.id, vehicleInfo.vehicleType, vehicleInfo.fuelType)
+	log.Printf("%d - %s - %s открыл соеднинение к MQTT брокеруr", vehicleInfo.id, vehicleInfo.vehicleType, vehicleInfo.fuelType)
 
 	path := GenerateCircularPath(&vehicleInfo.startLat, &vehicleInfo.startLon)
 	pointIndex := 0
@@ -140,7 +140,7 @@ func runVehicle(vehicleInfo VehicleInfo, mqttConfigs config) {
 		payload := createPayload(vehicleInfo, currentCoord)
 		jsonBytes, err := json.MarshalIndent(payload, "", "  ")
 		if err != nil {
-			log.Fatalf("Marshalling payload error: %v", err)
+			log.Fatalf("Ошибка сериализации JSON: %v", err)
 			continue
 		}
 		topic := fmt.Sprintf("%s/%s/%d/telemetry", vehicleInfo.vehicleType, vehicleInfo.fuelType, vehicleInfo.id)
@@ -148,9 +148,9 @@ func runVehicle(vehicleInfo VehicleInfo, mqttConfigs config) {
 		token := client.Publish(topic, 0, false, jsonBytes)
 		token.Wait()
 		if token.Error() != nil {
-			log.Fatalf("Error connecting to MQTT broker: %v", token.Error())
+			log.Fatalf("Ошибка соединения к MQTT брокеру: %v", token.Error())
 		} else {
-			log.Printf("[PUBLISHED] Target topic: %s \n payload: %+v", topic, payload)
+			log.Printf("[ОПУБЛИКОВАНО] Топик: %s \n тело: %+v", topic, payload)
 		}
 	}
 }
