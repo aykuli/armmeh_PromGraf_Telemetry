@@ -6,3 +6,8 @@ grafana/data
 
 telgen
 prometheus/*_rules.yml
+
+*.auto.tfvars
+*.tfstate*
+key.json
+.terraform*
