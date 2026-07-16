@@ -12,28 +12,24 @@ alerting:
         - targets:
           # - alertmanager:9093
 
-# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
-# rule_files:
-#   - "common_rules.yml"
-#   - "diesel_rules.yml"
-#   - "electric_rules.yml"
-#   - "robot_rules.yml"
-
 scrape_configs:
-  - job_name: 'node_exporter'
+  # Мониторинг состояния сервера
+  - job_name: node_exporter
     static_configs:
       - targets: ['host.docker.internal:9100']
-      
-  # Prometheus exposes data about itself as an HTTP endpoint, it scrapes and monitors its own health
-  - job_name: "prometheus"
-    # metrics_path defaults to '/metrics'
-    # scheme defaults to 'http'.
-    static_configs:
-      - targets: ["localhost:9090"]
-        labels:
-          app: "prometheus"
 
-  - job_name: "vehicles"
+  # Мониторинг базы данных PostgreSQL
+  - job_name: postgres_exporter
+    static_configs:
+      - targets: ["host.docker.internal:9187"]
+
+  # Мониторинг Backend API (FMS / Телематика)
+  - job_name: fms_backend
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+
+    # Сбор телеметрии с транспорта через MQTT Exporter
+  - job_name: vehicles
     static_configs:
       - targets: ["mqtt-exporter:9641"]
     metric_relabel_configs:
@@ -59,4 +55,10 @@ scrape_configs:
       - regex: "^sensor$"
         action: labeldrop
 
+  # Мониторинг самого Prometheus
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels:
+          app: "prometheus"
 

@@ -33,7 +33,7 @@ policies:
 groups:
   - orgId: 1
     name: "Robot Alerts"
-    folder: "Alerts"
+    folder: "Telemetry"
     interval: 10s
     rules:
       # 🔴 Перегрев бортового управляющего процессора CPU (>85°C)
@@ -80,6 +80,7 @@ groups:
               maxDataPoints: 43200
               refId: C
               type: threshold
+# todo summary description for alerts
         dashboardUid: park_state
         panelId: 12
         noDataState: NoData
@@ -332,7 +333,7 @@ groups:
           receiver:  Telegram Bot Alert
   - orgId: 1
     name: "Electric vehicle alerts"
-    folder: "Alerts"
+    folder: "Telemetry"
     interval: 10s
     rules:
       # 🔴 Разряд батареи (<10%)
@@ -574,7 +575,7 @@ groups:
 
   - orgId: 1
     name: "Diesel vehicle alerts"
-    folder: "Alerts"
+    folder: "Telemetry"
     interval: 10s
     rules:
       # 🔴 Критически низкое давление масла при заведенном двигателе
