@@ -23,10 +23,7 @@ type GrafanaAlert struct {
 }
 
 func main() {
-	// 1. Загружаем переменные из .env
-	if err := godotenv.Load(); err != nil {
-		log.Println("Предупреждение: .env файл не найден, используются системные переменные")
-	}
+	_ = godotenv.Load() // local dev
 
 	botToken := os.Getenv("BOT_TOKEN")
 	chatIDStr := os.Getenv("TELEGRAM_CHAT_ID")
@@ -40,7 +37,7 @@ func main() {
 		log.Fatalf("Ошибка: некорректный TELEGRAM_CHAT_ID: %v", err)
 	}
 
-	// 2. Инициализируем Telegram-бота
+	
 	bot, err := telego.NewBot(botToken)
 	if err != nil {
 		log.Fatalf("Ошибка инициализации бота: %v", err)
@@ -101,13 +98,12 @@ func main() {
 			return
 		}
 
-		// Отвечаем Grafana, что всё ок
+		// Отвечаем Grafane, что всё ок
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"success"}`))
 	})
 
-	// 4. Запускаем локальный веб-сервер на порту 8080
-	port := "0.0.0.0:8080"
+	port := "0.0.0.0:8081"
 	log.Printf("Сервер бота запущен локально на http://%s/alert\n", port)
 	if err := http.ListenAndServe(port, nil); err != nil {
 		log.Fatalf("Ошибка запуска сервера: %v", err)

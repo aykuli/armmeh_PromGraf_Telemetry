@@ -12,6 +12,48 @@ services:
   # здесь будет сервис, котрый имитирует устройства
   # может  и бот сюда положу
 
+  park-simulator:
+    build:
+      context: ./go-projects-group
+      dockerfile: Dockerfile.simulator
+    image: ghcr.io/aykuli/armmeh_promgraf_telemetry/simulator:latest
+    # image: sim:v0.0.1 # my local image to test
+    container_name: park_simulator
+    networks:
+      - monitoring
+    environment:
+      - MQTT_USER=${MQTT_USER}
+      - MQTT_PASS=${MQTT_PASS}
+      - MQTT_BROKER_URL=${MQTT_BROKER_URL}
+  backend:
+    build:
+      context: ./go-projects-group
+      dockerfile: Dockerfile.backend
+    image: ghcr.io/aykuli/armmeh_promgraf_telemetry/backend:latest
+    # image: backend:v0.0.1
+    container_name: backend
+    ports:
+      - "8080:8080"
+    networks:
+      - monitoring
+    environment:
+      - MQTT_USER=${MQTT_USER}
+      - MQTT_PASS=${MQTT_PASS}
+      - MQTT_BROKER_URL=${MQTT_BROKER_URL}
+      - FLEET_BACKEND_URL=${FLEET_BACKEND_URL}
+  bot:
+    build:
+      context: ./go-projects-group
+      dockerfile: Dockerfile.bot
+    image: ghcr.io/aykuli/armmeh_promgraf_telemetry/bot:latest
+    # image: bot:v0.0.1
+    container_name: bot
+    networks:
+      - monitoring
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+
   # --- БРОКЕР ОЧЕРЕДИ СООБЩЕНИЙ ---
   mosquitto:
     image: eclipse-mosquitto:2.1.2-alpine
@@ -42,8 +84,8 @@ services:
     networks:
       - monitoring
     environment:
-      - MQTT2PROM_MQTT_USER=${MQTT2PROM_MQTT_USER}
-      - MQTT2PROM_MQTT_PASSWORD=${MQTT2PROM_MQTT_PASSWORD}
+      - MQTT2PROM_MQTT_USER=${MQTT_USER}
+      - MQTT2PROM_MQTT_PASSWORD=${MQTT_PASS}
     depends_on:
       - mosquitto
 
@@ -161,5 +203,3 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot
-    depends_on:
-      - web-app

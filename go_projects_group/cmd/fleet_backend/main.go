@@ -75,9 +75,7 @@ func registerMetrics(reg prometheus.Registerer) *metrics {
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Не найден файл .env")
-	}
+	_ = godotenv.Load() // for locl dev purpose
 
 	reg := prometheus.NewRegistry()
 	m := registerMetrics(reg)
@@ -94,7 +92,7 @@ func main() {
 	}
 
 	log.Printf("Бэкенд запущен на %s\n", url)
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(url, mux); err != nil {
 		log.Fatal(err)
 	}
 

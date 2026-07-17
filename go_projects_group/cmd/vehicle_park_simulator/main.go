@@ -21,9 +21,7 @@ type config struct {
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Не найден файл .env")
-	}
+	_ = godotenv.Load() // для локального запуска
 
 	mqttConfigs := config{
 		url:      os.Getenv("MQTT_BROKER_URL"),

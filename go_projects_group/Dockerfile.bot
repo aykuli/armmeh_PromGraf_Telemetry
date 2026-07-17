@@ -1,0 +1,22 @@
+# stage 1
+FROM golang:1.26.2-alpine AS builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY cmd/bot/ .
+COPY internal/ internal/
+
+# Компилируем статически связанный бинарник (без внешних C-зависимостей)
+# Флаги -ldflags "-s -w" отрезают отладочную информацию и уменьшают размер файла
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o bot .
+
+# stage 2
+FROM alpine:3.20
+WORKDIR /app
+COPY --from=builder /app/bot .
+EXPOSE 8081
+
+CMD ["./bot"]
