@@ -38,6 +38,11 @@ write_files:
       POSTGRES_DB=${postgres_db}
       POSTGRES_USER=${postgres_user}
       POSTGRES_PASSWORD=${postgres_pass}
+  - path: /opt/app/nginx/.htpasswd
+    permissions: '0600'
+    owner: root:root
+    content: |
+      ${htpasswd_content}
 
 runcmd:
   # Ждем, пока apt освободится (важно для облаков)
@@ -46,7 +51,7 @@ runcmd:
   - echo '----------START ----------------'
   # 2. Создаем структуру и клонируем проект тоже в /opt/app/
   - mkdir -p /opt/app
-  - git clone https://github.com{github_user}/${github_repo}.git /opt/app-tmp
+  - git clone https://github.com/{github_user}/${github_repo}.git /opt/app-tmp
   - mv /opt/app-tmp/* /opt/app/ && rm -rf /opt/app-tmp
   
   # 3. Генерируем временные заглушки SSL в новой директории

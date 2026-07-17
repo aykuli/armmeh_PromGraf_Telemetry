@@ -40,20 +40,20 @@ resource "yandex_compute_instance" "vm" {
       github_token = var.github_token,
       github_repo  = var.github_repo,
 
-      tg_bot_token = var.tg_bot_token,
-      tg_chat_id   = var.tg_chat_id,
-
-      mqtt_broker_url = var.mqtt_broker_url,
-      mqtt_user       = var.mqtt_user,
-      mqtt_pass       = var.mqtt_pass,
-      fleet_backend_url = var.fleet_backend_url,
-      grafana_admin_pass = var.grafana_admin_pass,
-      grafana_admin_name = var.grafana_admin_name,
+      tg_bot_token        = var.tg_bot_token,
+      tg_chat_id          = var.tg_chat_id,
+      mqtt_broker_url     = var.mqtt_broker_url,
+      mqtt_user           = var.mqtt_user,
+      mqtt_pass           = var.mqtt_pass,
+      fleet_backend_url   = var.fleet_backend_url,
+      grafana_admin_pass  = var.grafana_admin_pass,
+      grafana_admin_name  = var.grafana_admin_name,
       grafana_admin_email = var.grafana_admin_email,
-      postgres_uri = var.postgres_uri,
-      postgres_db = var.postgres_db,
-      postgres_user = var.postgres_user,
-      postgres_pass = var.postgres_pass
+      postgres_uri        = var.postgres_uri,
+      postgres_db         = var.postgres_db,
+      postgres_user       = var.postgres_user,
+      postgres_pass       = var.postgres_pass,
+      htpasswd_content    = var.nginx_htpasswd_content
     })
   }
 }
