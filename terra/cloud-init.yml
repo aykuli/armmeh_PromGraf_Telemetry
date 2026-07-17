@@ -1,0 +1,70 @@
+#cloud-config
+users:
+  - name: ${github_user}
+    groups: sudo
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+package_update: true
+package_upgrade: false
+packages:
+  - nano
+  - bastet
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - git
+write_files:
+  - path: /opt/app/.env
+    permissions: '0600'
+    content: |
+      MQTT_BROKER_URL=${mqtt_broker_url}
+      MQTT_USER=${mqtt_user}
+      MQTT_PASS=${mqtt_pass}
+
+      FLEET_BACKEND_URL=${fleet_backend_url}
+
+      BOT_TOKEN=${tg_bot_token}
+      TELEGRAM_CHAT_ID=${tg_chat_id}
+
+      GRAFANA_ADMIN_PASSWORD=${grafana_admin_pass}
+      GRAFANA_ADMIN_NAME=${grafana_admin_name}
+      GRAFANA_ADMIN_EMAIL=${grafana_admin_email}
+
+      POSTGRES_URI=${postgres_uri}
+      POSTGRES_DB=${postgres_db}
+      POSTGRES_USER=${postgres_user}
+      POSTGRES_PASSWORD=${postgres_pass}
+  - path: /opt/app/nginx/.htpasswd
+    permissions: '0600'
+    owner: root:root
+    content: |
+      ${htpasswd_content}
+
+runcmd:
+  # Ждем, пока apt освободится (важно для облаков)
+  - while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 1; done
+
+  - echo '----------START ----------------'
+  # 2. Создаем структуру и клонируем проект тоже в /opt/app/
+  - mkdir -p /opt/app
+  - git clone https://github.com/{github_user}/${github_repo}.git /opt/app-tmp
+  - mv /opt/app-tmp/* /opt/app/ && rm -rf /opt/app-tmp
+  
+  # 3. Генерируем временные заглушки SSL в новой директории
+  - mkdir -p /opt/app/certbot/conf/live/mymeddata.ru
+  - openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout /opt/app/certbot/conf/live/mymeddata.ru/privkey.pem -out /opt/app/certbot/conf/live/mymeddata.ru/fullchain.pem -subj '/CN=localhost'
+  
+  # 4. Переходим в /opt/app/ и запускаем инфраструктуру под root-правами cloud-init
+  - cd /opt/app && docker compose up -d nginx
+  
+  # 5. Запрашиваем НАСТОЯЩИЙ сертификат Let's Encrypt через Certbot
+  - docker compose run --rm certbot certonly --webroot -w /var/www/certbot --cert-name mymeddata.ru -d mymeddata.ru --email aykuli@ya.ru --rsa-key-size 4096 --agree-tos --non-interactive --force-renewal
+  
+  # 6. Финальный перезапуск и поднятие всего продакшен-стека
+  - docker compose kill -s HUP nginx_proxy
+  - docker compose up -d
+

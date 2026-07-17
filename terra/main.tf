@@ -1,27 +1,26 @@
 data "yandex_compute_image" "container-optimized-image" {
-  family = var.vm.image_family
+  family = "container-optimized-image"
 }
 
-resource "yandex_compute_instance" "vms" {
-  count = 1
-
-  name        = var.vm.name
-  hostname    = var.vm.hostname
+resource "yandex_compute_instance" "vm" {
   folder_id   = var.folder_id
-  platform_id = var.vm.platform_id
-  zone        = var.default_zone
+  name        = "aynurvm"
+  hostname    = "aynurhost"
+  platform_id = "standard-v2"
+  zone        = "ru-central1-a"
 
   boot_disk {
     initialize_params {
       image_id = data.yandex_compute_image.container-optimized-image.id
-      size     = var.vm.boot_disk_size
-      type     = var.vm.boot_disk_type
+      size     = 40
+      type     = "network-ssd"
     }
   }
   network_interface {
     security_group_ids = [yandex_vpc_security_group.aynur-monitoring-sg.id]
     subnet_id          = yandex_vpc_subnet.ayn-monitoring-subn.id
-    nat                = var.vm.nat
+    nat                = true
+    nat_ip_address     = yandex_vpc_address.addr.external_ipv4_address[0].address
   }
 
   resources {
@@ -30,21 +29,31 @@ resource "yandex_compute_instance" "vms" {
     core_fraction = 100
   }
   scheduling_policy {
-    preemptible = var.vm.preemptible
+    preemptible = true
   }
 
   metadata = {
-    user-data = templatefile("cloud-init.yml", {
-      vm_user        = var.web_vm.user,
-      ssh_public_key = var.web_vm.ssh_key,
-      app_folder     = var.web_vm.app_folder,
+    ssh-keys = "${var.github_user}:${var.ssh_public_key}"
 
-      deploy_key     = indent(6, file(var.web_vm.deploy_key_path)),
-      db_name = var.db_name,
-      db_pwd  = yandex_lockbox_secret_version.v1.entries[0].text_value,
-      db_user = var.db_user,
-      db_port = var.db_port,
-      db_host = yandex_mdb_postgresql_cluster.pg_cluster.host[0].fqdn
+    user-data = templatefile("cloud-init.yml", {
+      github_user  = var.github_user,
+      github_token = var.github_token,
+      github_repo  = var.github_repo,
+
+      tg_bot_token        = var.tg_bot_token,
+      tg_chat_id          = var.tg_chat_id,
+      mqtt_broker_url     = var.mqtt_broker_url,
+      mqtt_user           = var.mqtt_user,
+      mqtt_pass           = var.mqtt_pass,
+      fleet_backend_url   = var.fleet_backend_url,
+      grafana_admin_pass  = var.grafana_admin_pass,
+      grafana_admin_name  = var.grafana_admin_name,
+      grafana_admin_email = var.grafana_admin_email,
+      postgres_uri        = var.postgres_uri,
+      postgres_db         = var.postgres_db,
+      postgres_user       = var.postgres_user,
+      postgres_pass       = var.postgres_pass,
+      htpasswd_content    = var.nginx_htpasswd_content
     })
   }
 }
