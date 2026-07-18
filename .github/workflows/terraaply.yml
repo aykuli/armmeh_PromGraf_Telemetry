@@ -55,4 +55,4 @@ jobs:
         -var="postgres_user=${{ secrets.POSTGRES_USER }}"
         -var="postgres_pass=${{ secrets.POSTGRES_PASSWORD }}"
         -var="nginx_htpasswd_content=${{ secrets.NGINX_HTPASSWD_CONTENT }}"
-        -var="mqqt_broker_passwd_content'${{ secrets.MQQT_BROKER_PASSWD_CONTENT }}"
+        -var="mqqt_broker_passwd_content=${{ secrets.MQQT_BROKER_PASSWD_CONTENT }}"
