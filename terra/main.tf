@@ -3,6 +3,13 @@ data "yandex_compute_image" "container-optimized-image" {
 }
 
 resource "yandex_compute_instance" "vm" {
+  depends_on = [
+    yandex_vpc_address.addr,
+    data.yandex_compute_image.container-optimized-image,
+    yandex_vpc_security_group.aynur-monitoring-sg,
+    yandex_vpc_subnet.ayn-monitoring-subn
+  ]
+
   folder_id   = var.folder_id
   name        = "aynurvm"
   hostname    = "aynurhost"
@@ -54,6 +61,7 @@ resource "yandex_compute_instance" "vm" {
       postgres_user       = var.postgres_user,
       postgres_pass       = var.postgres_pass,
       htpasswd_content    = var.nginx_htpasswd_content
+      mqqt_broker_passwd_content    = var.mqqt_broker_passwd_content
     })
   }
 }

@@ -11,12 +11,16 @@ resource "yandex_vpc_network" "ayn-monitoring-netw" {
 }
 
 resource "yandex_vpc_subnet" "ayn-monitoring-subn" {
+  depends_on = [ yandex_vpc_network.ayn-monitoring-netw ]
+
   network_id       = yandex_vpc_network.ayn-monitoring-netw.id
   name             = "ayn-subn"
   v4_cidr_blocks   = [ "10.0.2.0/24" ]
 }
 
 resource "yandex_vpc_security_group" "aynur-monitoring-sg" {
+  depends_on = [ yandex_vpc_network.ayn-monitoring-netw ]
+
   name        = "ayn-sg"
   description ="Allow HTTP, HTTPS and SSH"
   labels      = { forwhom: "armmeh" }

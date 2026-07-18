@@ -18,7 +18,7 @@ packages:
   - lsb-release
   - git
 write_files:
-  - path: /opt/app/.env
+  - path: /opt/tmp/.env
     permissions: '0600'
     content: |
       MQTT_BROKER_URL=${mqtt_broker_url}
@@ -43,6 +43,11 @@ write_files:
     owner: root:root
     content: |
       ${htpasswd_content}
+  - path: /opt/tmp/mosquitto/password.txt
+    permissions: '0600'
+    owner: root:root
+    content: |
+      ${mqqt_broker_passwd_content}
 
 runcmd:
   # Ждем, пока apt освободится (важно для облаков)
@@ -51,9 +56,14 @@ runcmd:
   - echo '----------START ----------------'
   # 2. Создаем структуру и клонируем проект тоже в /opt/app/
   - mkdir -p /opt/app
-  - git clone https://github.com/${github_user}/${github_repo}.git /opt/app-tmp
-  - mv /opt/app-tmp/* /opt/app/ && rm -rf /opt/app-tmp
-  - cp /opt/tmp/nginx/.htpasswd /opt/app/nginx
+  - git clone https://github.com/${github_user}/${github_repo}.git /opt/app
+  - mv /opt/tmp/.env /opt/app
+  - mv /opt/tmp/nginx/.htpasswd /opt/app/nginx
+  - mv /opt/tmp/mosquitto/password.txt /opt/app/mosquitto/config
+
+  # Prep Mosquitto directories with proper write clearances
+  - mkdir -p /opt/app/mosquitto/config /opt/app/mosquitto/log
+  - chmod -R 777 /opt/app/mosquitto/log
   
   # 3. Генерируем временные заглушки SSL в новой директории
   - mkdir -p /opt/app/certbot/conf/live/mymeddata.ru
@@ -62,8 +72,7 @@ runcmd:
   # 4. Переходим в /opt/app/ и запускаем инфраструктуру под root-правами cloud-init
   - cd /opt/app && docker compose up -d nginx
   
-  # 5. Запрашиваем НАСТОЯЩИЙ сертификат Let's Encrypt через Certbot
-  # - docker compose run --rm certbot certonly --webroot -w /var/www/certbot --cert-name mymeddata.ru -d mymeddata.ru --email aykuli@ya.ru --rsa-key-size 4096 --agree-tos --non-interactive --force-renewal
+  # 5. Запрашиваем сертификат Let's Encrypt через Certbot
   - >
     docker run -it --rm --name certbot 
     -v "./certbot/conf:/etc/letsencrypt" 
@@ -75,7 +84,7 @@ runcmd:
     --agree-tos
     --no-eff-email
     --non-interactive
-  # 6. Финальный перезапуск и поднятие всего продакшен-стека
+  # 6. Финальный запуск и поднятие всего стека
   - docker compose up -d
   - echo '---------- END INITIALIZATION ----------'
 

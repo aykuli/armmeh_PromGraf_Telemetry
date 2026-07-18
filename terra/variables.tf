@@ -25,5 +25,4 @@ variable "postgres_db" { type = string }
 variable "postgres_user" { type = string }
 variable "postgres_pass" { type = string }
 variable "nginx_htpasswd_content" { type = string }
-
-
+variable "mqqt_broker_passwd_content" { type = string }

@@ -10,9 +10,6 @@ volumes:
 
 services:
   park-simulator:
-    build:
-      context: ./go-projects-group
-      dockerfile: Dockerfile.simulator
     image: ghcr.io/aykuli/armmeh_promgraf_telemetry/simulator:latest
     container_name: park_simulator
     networks:
@@ -22,9 +19,6 @@ services:
       - MQTT_PASS=${MQTT_PASS}
       - MQTT_BROKER_URL=${MQTT_BROKER_URL}
   backend:
-    build:
-      context: ./go-projects-group
-      dockerfile: Dockerfile.backend
     image: ghcr.io/aykuli/armmeh_promgraf_telemetry/backend:latest
     container_name: backend
     networks:
@@ -35,9 +29,6 @@ services:
       - MQTT_BROKER_URL=${MQTT_BROKER_URL}
       - FLEET_BACKEND_URL=${FLEET_BACKEND_URL}
   bot:
-    build:
-      context: ./go-projects-group
-      dockerfile: Dockerfile.bot
     image: ghcr.io/aykuli/armmeh_promgraf_telemetry/bot:latest
     container_name: bot
     networks:
