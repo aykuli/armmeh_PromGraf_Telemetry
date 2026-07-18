@@ -8,7 +8,7 @@ contactPoints:
         settings:
           bottoken: 8895251336:AAF2wKvJBSGbreclUAkrnb5jrNm0QLawWvE
           chatid: "-1003965153231"
-          message: '{{ template "telegram.default.message" . }}'
+          message: '{{ template "aynurs_tg_template" . }}'
   - name: "Email Alert"
     receivers:
       - uid: "email_receiver"

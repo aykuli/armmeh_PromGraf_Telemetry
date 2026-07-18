@@ -1,0 +1,16 @@
+{{ define "aynurs_tg_template" }}
+{{ if gt (len .Alerts.Firing) 0 }}🚨 <b>КРИТИЧЕСКИЙ СБОЙ</b> 🚨{{ end }}
+{{ if gt (len .Alerts.Resolved) 0 }}✅ <b>СИСТЕМА ВОССТАНОВЛЕНА</b> ✅{{ end }}
+━━━━━━━━━━━━━━━━━━━━
+{{ range .Alerts }}
+📌 <b>Инцидент:</b> {{ .Labels.alertname }}
+🚦 <b>Статус:</b> {{ if eq .Status "firing" }}🔴 ALERTING{{ else }}🟢 RESOLVED{{ end }}
+📉 <b>Важность:</b> <code>{{ .Labels.severity }}</code>
+
+📝 <b>Описание:</b>
+<pre>{{ .Annotations.description }}</pre>
+━━━━━━━━━━━━━━━━━━━━
+{{ if .DashboardURL }}📊 <a href="{{ .DashboardURL }}">Открыть дашборд Grafana</a>{{ end }}
+{{ if .PanelURL }} | 🖼️ <a href="{{ .PanelURL }}">Посмотреть панель</a>{{ end }}
+{{ end }}
+{{ end }}
