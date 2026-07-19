@@ -21,21 +21,311 @@
 ## Архитектура инфраструктуры мониторинга
 
 
-<details>
-<summary> свернуть
-</summary>
+<details open>
+<summary> свернуть</summary>
 
-![](./infra_arch.md)
+```mermaid
+block
+columns 1
+  user(("👤<br>Диспетчер"))
+  nginx[["🔒 Nginx Proxy<br>80 / 443<br>Basic Auth / SSL"]]
+  user --> nginx
+
+  block:grafana
+  columns 2
+    block:gr
+    columns 2
+      g["Grafana"]
+      gright<["Grafana's built-in<br>AlertManager"]>(right)
+    end
+    block:agents
+    columns 1
+      tg["Telegram"] email["Email<br>SMTP"]
+    end
+  end
+  nginx --> grafana
+
+  block:arrows_st
+  columns 2
+    downsql<["SQL<br>requests"]>(down) 
+    downpql<["PromQL<br>requests"]>(down) 
+  end
+
+  block:storage
+  columns 2
+    pg[("PostgreSQL")]
+    vm[("Victoriametrics")]
+  end
+ 
+
+  block:arrows_gopr
+  columns 2
+    upsql<["SQL<br>inserts<br>events"]>(up) 
+    space 
+  end
+
+  block:gopr
+  columns 2
+    backend
+    ps["Park Simulator"]
+  end
+
+  block:arrows_gopr2
+  columns 2
+    subscribed<["MQTT<br>subscribed"]>(up) 
+    tomqttbroker<["MQTT<br>deliver"]>(down)
+  end
+
+  mqttbroker["MQTT<br>Broker<br>mosquitto"]
+
+  block:mqtt_exp
+  columns 3
+    space
+    frommqttbroker<["MQTT<br>subscribed"]>(down)
+    ns(("Node system"))
+  end
+
+  block:exporters
+  columns 3
+  postgres_exporter["Postgres Exporter<br>gets data from system"]
+  mqtt_exporter["MQTT Exporter<br>mqtt2prometheus"]
+  node_exporter["Node Exporter<br>gets data from system"]
+  end
+  postgres_exporter -->pg
+
+  block:promql
+  columns 3
+    promql_pg<["GET /metrics"]>(up)
+    promql_mqtt<["GET /metrics"]>(up)
+    promql_node<["GET /metrics"]>(up)
+  end
+  prometheus -->vm
+
+  classDef nginx_style fill:#696,stroke:#333,stroke-width:0px,color:#fff;
+  class nginx nginx_style
+
+  classDef orange fill:#dd5522,stroke:#333,stroke-width:0px,color:#fff;
+  class g,gright orange
+
+  classDef lorange fill:#ff8855,stroke:#333,stroke-width:0px,color:#fff;
+  class gr lorange
+  
+  classDef blue fill:#5888f5,stroke:#fff,color:#fff;
+  class backend,ps blue
+  
+  classDef tgblue fill:#8899ff,stroke:#fff,color:#fff;
+  class tg tgblue
+
+  classDef deepblue fill:#6666ff,stroke:#fff,color:#ff0000,stroke-width:0px;
+  class mqttbroker,mqtt_exporter,frommqttbroker,subscribed,tomqttbroker deepblue
+
+  classDef red fill:#aa6666,stroke:#fff,color:#fff,stroke-width:0px;
+  class prometheus,vm,downpql,promql_pg,promql_mqtt,promql_node red
+
+  classDef lightblue fill:#58bbff,stroke:#fff,color:#fff;
+  class postgres_exporter,pg,upsql,downsql lightblue
+
+  classDef green fill:#55aa88,stroke:#fff,color:#fff;
+  class node_exporter,ns green
+```
 
 </details>
 
 ## docker compose content
 
 <details>
-<summary>compose.yml (свернуть)
+<summary>compose.yml (развернуть)
 </summary>
 
-![](./compose.yml)
+```yaml
+networks:
+  monitoring:
+    driver: bridge
+volumes:
+  mqtt2prometheus_cache:
+  prometheus_data:
+  victoria_metrics_data:
+  grafana_data:
+  postgres_data:
+
+services:
+  park-simulator:
+    image: ghcr.io/aykuli/armmeh_promgraf_telemetry/simulator:latest
+    container_name: park_simulator
+    networks:
+      - monitoring
+    environment:
+      - MQTT_USER=${MQTT_USER}
+      - MQTT_PASS=${MQTT_PASS}
+      - MQTT_BROKER_URL=${MQTT_BROKER_URL}
+  backend:
+    image: ghcr.io/aykuli/armmeh_promgraf_telemetry/backend:latest
+    container_name: backend
+    networks:
+      - monitoring
+    environment:
+      - MQTT_USER=${MQTT_USER}
+      - MQTT_PASS=${MQTT_PASS}
+      - MQTT_BROKER_URL=${MQTT_BROKER_URL}
+      - FLEET_BACKEND_URL=${FLEET_BACKEND_URL}
+      - POSTGRES_DSN=${POSTGRES_DSN}
+
+  # --- БРОКЕР ОЧЕРЕДИ СООБЩЕНИЙ ---
+  mosquitto:
+    image: eclipse-mosquitto:2.1.2-alpine
+    container_name: mosquitto
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/log:/mosquitto/log
+    ports:
+      - '1883:1883'
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  # --- MQTT -> PROMETHEUS ---
+  mqtt-exporter:
+    image: ghcr.io/hikhvar/mqtt2prometheus:v0.1.8-RC2
+    container_name: mqtt_exporter
+    volumes:
+      - ./mqtt2prometheus/config:/config
+      - mqtt2prometheus_cache:/var/lib/mqtt2prometheus
+    command:
+      - '-config=/config/config.yml'
+    ports:
+      - '9641:9641'
+    entrypoint:
+      - /mqtt2prometheus
+      - -log-level=debug
+    networks:
+      - monitoring
+    environment:
+      - MQTT2PROM_MQTT_USER=${MQTT_USER}
+      - MQTT2PROM_MQTT_PASSWORD=${MQTT_PASS}
+    depends_on:
+      - mosquitto
+
+  # --- NODE DATA -> PROMETHEUS ---
+  node-exporter:
+    image: prom/node-exporter:master
+    container_name: node_exporter
+    pid: host          # Without pid: host, Node Exporter cannot inspect processes running directly on your host machine
+    network_mode: host # Gives Node Exporter access to real host interfaces (eth0, wlan0, etc.)
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
+
+  # --- МОНИТОРИНГ И СБОР МЕТРИК ---
+  prometheus:
+    image: prom/prometheus:v3.13.1
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--storage.tsdb.retention.size=10GB'
+    networks:
+      - monitoring
+    extra_hosts: ["host.docker.internal:host-gateway"] # for node-exporter service
+
+  # --- ДОЛГОСРОЧНОЕ ХРАНИЛИЩЕ МЕТРИК ---
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.101.0
+    container_name: victoria_metrics
+    volumes:
+      - victoria_metrics_data:/victoria-metrics-data
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+  postgres-db:
+    image: postgres:17-alpine
+    container_name: postgres_db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - monitoring
+    restart: unless-stopped
+
+
+  # --- МОНИТОРИНГ БАЗЫ ДАННЫХ ПОТСГРЕС ---
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    container_name: postgres_exporter
+    network_mode: host
+    environment:
+      - DATA_SOURCE_URI=${POSTGRES_URI}
+      - DATA_SOURCE_USER=${POSTGRES_USER}
+      - DATA_SOURCE_PASS=${POSTGRES_PASSWORD}
+    restart: unless-stopped
+
+  # --- ВИЗУАЛИЗАЦИЯ И КАРТЫ ---
+  grafana:
+    image: grafana/grafana:11.6.15-ubuntu
+    container_name: grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
+      - ./grafana/config/grafana.ini:/etc/grafana/config/grafana.ini:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - monitoring
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_NAME}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_ALERTS_ALLOW_LOCAL_MODE_NOTIFIER=true
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=smtp.yandex.ru:465
+      - GF_SMTP_USER=${GF_SMTP_USER}
+      - GF_SMTP_PASSWORD=${GF_SMTP_PASSWORD}
+      - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS}
+      - GF_SMTP_FROM_NAME=${GF_SMTP_FROM_NAME}
+      - GF_SMTP_SKIP_VERIFY=false
+      - BOT_TOKEN=${BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    depends_on:
+      - prometheus
+      - victoriametrics
+    restart: unless-stopped
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro 
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot
+      - /var/run/docker.sock:/var/run/docker.sock # Чтобы контейнер certbot мог выполнить команду docker kill внутри себя и дотянуться до соседнего контейнера Nginx
+    networks:
+      - monitoring
+    restart: always
+
+
+```
 </details>
 
 ## Уведомления

@@ -29,14 +29,6 @@ services:
       - MQTT_BROKER_URL=${MQTT_BROKER_URL}
       - FLEET_BACKEND_URL=${FLEET_BACKEND_URL}
       - POSTGRES_DSN=${POSTGRES_DSN}
-  bot:
-    image: ghcr.io/aykuli/armmeh_promgraf_telemetry/bot:latest
-    container_name: bot
-    networks:
-      - monitoring
-    environment:
-      - BOT_TOKEN=${BOT_TOKEN}
-      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
 
   # --- БРОКЕР ОЧЕРЕДИ СООБЩЕНИЙ ---
   mosquitto:
