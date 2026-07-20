@@ -36,7 +36,7 @@ resource "yandex_compute_instance" "vm" {
     core_fraction = 100
   }
   scheduling_policy {
-    preemptible = true
+    preemptible = false
   }
 
   metadata = {
