@@ -10,6 +10,8 @@ resource "yandex_compute_instance" "vm" {
     yandex_vpc_subnet.ayn-monitoring-subn
   ]
 
+  allow_stopping_for_update = true
+  
   folder_id   = var.folder_id
   name        = "aynurvm"
   hostname    = "aynurhost"
